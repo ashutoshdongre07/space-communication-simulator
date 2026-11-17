@@ -1,0 +1,172 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 240" fill="none">
+  <defs>
+    <!-- Background Space Fade -->
+    <linearGradient id="deepSpaceFade" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#050D18" stop-opacity="0"/>
+      <stop offset="35%" stop-color="#071322" stop-opacity="0.6"/>
+      <stop offset="70%" stop-color="#0A1C33" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#0E2442" stop-opacity="1"/>
+    </linearGradient>
+
+    <!-- Earth Atmosphere Limb Glow (Radial gradient centered off-screen below) -->
+    <radialGradient id="earthAtmosphereGlow" cx="620" cy="380" r="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="1"/>
+      <stop offset="30%" stop-color="#0284C7" stop-opacity="0.8"/>
+      <stop offset="55%" stop-color="#0369A1" stop-opacity="0.45"/>
+      <stop offset="80%" stop-color="#0C4A6E" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#050D18" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Earth Surface Horizon Gradient -->
+    <linearGradient id="earthSurface" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0C4A6E"/>
+      <stop offset="40%" stop-color="#072A42"/>
+      <stop offset="100%" stop-color="#031422"/>
+    </linearGradient>
+
+    <!-- Solar Cell Silicon Blue Gradient -->
+    <linearGradient id="solarCellGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E40AF"/>
+      <stop offset="40%" stop-color="#2563EB"/>
+      <stop offset="75%" stop-color="#1D4ED8"/>
+      <stop offset="100%" stop-color="#172554"/>
+    </linearGradient>
+
+    <!-- Spacecraft Gold MLI Foil -->
+    <linearGradient id="goldFoilGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE68A"/>
+      <stop offset="35%" stop-color="#F59E0B"/>
+      <stop offset="70%" stop-color="#D97706"/>
+      <stop offset="100%" stop-color="#78350F"/>
+    </linearGradient>
+
+    <!-- Metallic Titanium Trim -->
+    <linearGradient id="titaniumGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#E2E8F0"/>
+      <stop offset="50%" stop-color="#94A3B8"/>
+      <stop offset="100%" stop-color="#475569"/>
+    </linearGradient>
+
+    <!-- Atmospheric Glow Filter -->
+    <filter id="softAtmosphere" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Deep space fade overlay -->
+  <rect x="0" y="0" width="850" height="240" fill="url(#deepSpaceFade)"/>
+
+  <!-- Distant Background Stars -->
+  <g opacity="0.85">
+    <circle cx="260" cy="45" r="1.2" fill="#BAE6FD" opacity="0.6"/>
+    <circle cx="380" cy="28" r="1.8" fill="#FFFFFF" opacity="0.9"/>
+    <circle cx="490" cy="55" r="1.4" fill="#E0F2FE" opacity="0.75"/>
+    <circle cx="560" cy="22" r="2.2" fill="#FFFFFF" opacity="0.95"/>
+    <circle cx="670" cy="35" r="1.5" fill="#BAE6FD" opacity="0.8"/>
+    <circle cx="740" cy="18" r="1.6" fill="#FFFFFF" opacity="0.85"/>
+    <circle cx="790" cy="60" r="1.2" fill="#E0F2FE" opacity="0.7"/>
+    <circle cx="820" cy="95" r="1.5" fill="#BAE6FD" opacity="0.6"/>
+  </g>
+
+  <!-- Earth Horizon Curvature Arc -->
+  <!-- Base Earth body -->
+  <path d="M 220 250 Q 560 120 860 165 L 860 250 Z" fill="url(#earthSurface)"/>
+  
+  <!-- Atmospheric Glow Layers -->
+  <path d="M 200 255 Q 560 112 870 160 L 870 255 Z" fill="url(#earthAtmosphereGlow)" opacity="0.75"/>
+  <path d="M 210 252 Q 560 116 865 162" stroke="#38BDF8" stroke-width="4.5" opacity="0.85" filter="url(#softAtmosphere)"/>
+  <path d="M 220 250 Q 560 120 860 165" stroke="#BAE6FD" stroke-width="1.8" opacity="0.95"/>
+
+  <!-- Subtle Cloud / Surface Swirl on Earth -->
+  <path d="M 360 240 Q 500 185 640 195 Q 740 205 820 188" stroke="#0284C7" stroke-width="6" opacity="0.3" stroke-linecap="round"/>
+  <path d="M 460 245 Q 600 205 760 215" stroke="#38BDF8" stroke-width="3" opacity="0.25" stroke-linecap="round"/>
+
+  <!-- ======================================================= -->
+  <!-- Spacecraft / Communications Satellite in Orbit         -->
+  <!-- ======================================================= -->
+  <g transform="translate(565, 88) rotate(-7)">
+    
+    <!-- Left Solar Array Wing -->
+    <g transform="translate(-172, -34)">
+      <!-- Articulated Boom & Yoke -->
+      <line x1="95" y1="34" x2="124" y2="34" stroke="url(#titaniumGrad)" stroke-width="3.5"/>
+      <rect x="118" y="30" width="8" height="8" rx="2" fill="#64748B"/>
+
+      <!-- Panel Frame -->
+      <rect x="0" y="0" width="102" height="68" rx="3" fill="#0A0F1D" stroke="#334155" stroke-width="1.8"/>
+      
+      <!-- Solar Array Panels (3 segments) -->
+      <rect x="3" y="3" width="30" height="62" rx="1.5" fill="url(#solarCellGrad)"/>
+      <rect x="36" y="3" width="30" height="62" rx="1.5" fill="url(#solarCellGrad)"/>
+      <rect x="69" y="3" width="30" height="62" rx="1.5" fill="url(#solarCellGrad)"/>
+
+      <!-- Photovoltaic Grid Interconnects -->
+      <line x1="3" y1="18" x2="99" y2="18" stroke="#60A5FA" stroke-width="0.75" opacity="0.8"/>
+      <line x1="3" y1="34" x2="99" y2="34" stroke="#60A5FA" stroke-width="0.75" opacity="0.8"/>
+      <line x1="3" y1="50" x2="99" y2="50" stroke="#60A5FA" stroke-width="0.75" opacity="0.8"/>
+
+      <line x1="18" y1="3" x2="18" y2="65" stroke="#93C5FD" stroke-width="0.5" opacity="0.6"/>
+      <line x1="51" y1="3" x2="51" y2="65" stroke="#93C5FD" stroke-width="0.5" opacity="0.6"/>
+      <line x1="84" y1="3" x2="84" y2="65" stroke="#93C5FD" stroke-width="0.5" opacity="0.6"/>
+    </g>
+
+    <!-- Right Solar Array Wing -->
+    <g transform="translate(68, -34)">
+      <!-- Articulated Boom & Yoke -->
+      <line x1="-24" y1="34" x2="0" y2="34" stroke="url(#titaniumGrad)" stroke-width="3.5"/>
+      <rect x="-26" y="30" width="8" height="8" rx="2" fill="#64748B"/>
+
+      <!-- Panel Frame -->
+      <rect x="0" y="0" width="102" height="68" rx="3" fill="#0A0F1D" stroke="#334155" stroke-width="1.8"/>
+      
+      <!-- Solar Array Panels (3 segments) -->
+      <rect x="3" y="3" width="30" height="62" rx="1.5" fill="url(#solarCellGrad)"/>
+      <rect x="36" y="3" width="30" height="62" rx="1.5" fill="url(#solarCellGrad)"/>
+      <rect x="69" y="3" width="30" height="62" rx="1.5" fill="url(#solarCellGrad)"/>
+
+      <!-- Photovoltaic Grid Interconnects -->
+      <line x1="3" y1="18" x2="99" y2="18" stroke="#60A5FA" stroke-width="0.75" opacity="0.8"/>
+      <line x1="3" y1="34" x2="99" y2="34" stroke="#60A5FA" stroke-width="0.75" opacity="0.8"/>
+      <line x1="3" y1="50" x2="99" y2="50" stroke="#60A5FA" stroke-width="0.75" opacity="0.8"/>
+
+      <line x1="18" y1="3" x2="18" y2="65" stroke="#93C5FD" stroke-width="0.5" opacity="0.6"/>
+      <line x1="51" y1="3" x2="51" y2="65" stroke="#93C5FD" stroke-width="0.5" opacity="0.6"/>
+      <line x1="84" y1="3" x2="84" y2="65" stroke="#93C5FD" stroke-width="0.5" opacity="0.6"/>
+    </g>
+
+    <!-- Main Satellite Body Bus -->
+    <!-- Outer gold foil insulation -->
+    <rect x="-26" y="-26" width="52" height="52" rx="5" fill="url(#goldFoilGrad)" stroke="#B45309" stroke-width="1.5"/>
+    <!-- Central equipment bay -->
+    <rect x="-18" y="-18" width="36" height="36" rx="3" fill="#0F172A" stroke="#475569" stroke-width="1.2"/>
+    
+    <!-- Onboard Instrument Sensors / Apertures -->
+    <circle cx="-7" cy="-7" r="4.5" fill="#1E293B" stroke="#0284C7" stroke-width="1"/>
+    <circle cx="7" cy="-7" r="3.5" fill="#38BDF8" opacity="0.9"/>
+    <rect x="-10" y="5" width="20" height="7" rx="1.5" fill="#1E293B" stroke="#64748B" stroke-width="0.8"/>
+
+    <!-- High-Gain Parabolic Earth-Pointing Dish Antenna -->
+    <g transform="translate(0, 26)">
+      <!-- Feed Mast -->
+      <line x1="0" y1="0" x2="0" y2="16" stroke="url(#titaniumGrad)" stroke-width="2.5"/>
+      <!-- Reflector Dish (curved parabola) -->
+      <path d="M -24 24 Q 0 12 24 24" stroke="#F8FAFC" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="M -21 22 Q 0 11 21 22" stroke="#94A3B8" stroke-width="1.5" fill="none"/>
+      
+      <!-- Subreflector & Feed Horn -->
+      <line x1="-12" y1="20" x2="0" y2="34" stroke="#CBD5E1" stroke-width="1.2"/>
+      <line x1="12" y1="20" x2="0" y2="34" stroke="#CBD5E1" stroke-width="1.2"/>
+      <circle cx="0" cy="34" r="3" fill="#38BDF8"/>
+
+      <!-- Transmitted RF Wave Fronts -->
+      <path d="M -10 42 A 12 12 0 0 0 10 42" stroke="#38BDF8" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.9"/>
+      <path d="M -19 50 A 22 22 0 0 0 19 50" stroke="#38BDF8" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.6"/>
+      <path d="M -28 58 A 32 32 0 0 0 28 58" stroke="#38BDF8" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.35"/>
+    </g>
+
+    <!-- Attitude Control Thruster Nozzles -->
+    <polygon points="-26,-15 -31,-18 -31,-12" fill="#94A3B8"/>
+    <polygon points="26,-15 31,-18 31,-12" fill="#94A3B8"/>
+  </g>
+</svg>

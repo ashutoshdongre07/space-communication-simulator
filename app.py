@@ -5,15 +5,21 @@ Professional Aerospace Mission Control Console.
 Compliant with CCSDS 131.0-B-5 Telemetry Synchronization and Channel Standards.
 
 Supports:
-- Dual High-Contrast Themes: Light Mode (Mission Control) & Dark Mode (Deep Space Night)
+- Full-Width Aerospace Hero Banner with Earth Horizon, Atmospheric Glow & Spacecraft
+- Subtle Background Spacecraft Watermark (Zero Network Reliance, Local Vector SVG)
+- Reduced Top Padding & Seamless Mission Control Layout
+- Dual High-Contrast Themes: Light Mode (Professional Aerospace) & Dark Mode (Deep Space)
 - Full Mission Telemetry Configuration (Frames, Payload, CRC-16/32, Channel Noise, Seeds)
 - Real-time Interactive Execution with Progress Tracking
 - Aerospace Mission Metric Cards (BER, FER, Valid Frames, Corrupted Frames, Detection Accuracy)
 - Plotly Visualizations (Integrity Donut, Per-Frame Injected Errors, Theoretical BPSK Waterfall)
 - Searchable & Filterable Telemetry Frame Audit Table
-- Direct CSV Data Export
+- Direct CSV and JSON Data Exports
 """
 
+import os
+import json
+import base64
 import math
 import streamlit as st
 import pandas as pd
@@ -27,11 +33,26 @@ from src.core.frame import FrameStatus
 
 # Page configuration
 st.set_page_config(
-    page_title="Space Communication Mission Control",
+    page_title="Space Telemetry Link Simulator",
     page_icon="🛰️",
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+# ---------------------------------------------------------
+# Local Vector Assets Loader (100% Offline, Zero URL Dependency)
+# ---------------------------------------------------------
+ASSETS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
+
+def load_asset_base64(filename: str) -> str:
+    path = os.path.join(ASSETS_DIR, filename)
+    if os.path.exists(path):
+        with open(path, "rb") as f:
+            return base64.b64encode(f.read()).decode("utf-8")
+    return ""
+
+watermark_b64 = load_asset_base64("satellite_watermark.svg")
+hero_svg_b64 = load_asset_base64("hero_spacecraft.svg")
 
 # ---------------------------------------------------------
 # Theme Management & Palette Definition
@@ -51,48 +72,63 @@ st.session_state["theme_mode"] = theme_choice
 is_dark = (theme_choice == "Dark Mode 🌙")
 
 if is_dark:
-    # DARK MODE PALETTE (Refined Deep Space Theme)
-    c_bg = "#111827"           # Main background
-    c_sidebar = "#172033"      # Sidebar background
-    c_card = "#1F2937"         # Card background
-    c_card_inner = "#182234"   # Secondary inner card
-    c_text_primary = "#F9FAFB" # Primary text (white)
-    c_text_muted = "#A7B4C8"   # Secondary text (muted grey-blue)
-    c_accent = "#60A5FA"       # Accent blue
-    c_accent_hover = "#3B82F6" # Accent blue hover
-    c_success = "#34D399"      # Success green
+    # DARK MODE PALETTE — DEEP SPACE NAVY
+    c_bg = "#08111F"           # Main background
+    c_sidebar = "#0D1A2D"      # Sidebar background
+    c_card = "#111E30"         # Content cards
+    c_card_inner = "#152438"   # Secondary inner card
+    c_text_primary = "#F8FAFC" # Primary text (white)
+    c_text_muted = "#CBD5E1"   # Secondary text (light slate)
+    c_accent = "#60A5FA"       # Primary blue
+    c_accent_hover = "#3B82F6" # Primary blue hover
+    c_subtle = "#162740"       # Subtle accent background
+    c_success = "#4ADE80"      # Success green
     c_warning = "#FBBF24"      # Warning amber
     c_error = "#F87171"        # Error red
-    c_border = "#374151"       # Borders
-    c_grid = "#2B3545"         # Chart grid lines
+    c_border = "#263A52"       # Card & element borders
+    c_grid = "#1D2D42"         # Visible chart gridlines
+    wm_opacity = "0.065"       # Watermark opacity (Dark Mode)
     plotly_template = "plotly_dark"
-    badge_bg = "rgba(52, 211, 153, 0.15)"
-    badge_border = "#059669"
+    badge_bg = "rgba(74, 222, 128, 0.15)"
+    badge_border = "#22C55E"
 else:
-    # LIGHT MODE PALETTE (High-Contrast Professional Aerospace Theme)
-    c_bg = "#F4F7FB"           # Main background
-    c_sidebar = "#E8EEF6"      # Sidebar background
-    c_card = "#FFFFFF"         # Card background
+    # LIGHT MODE PALETTE — PROFESSIONAL AEROSPACE
+    c_bg = "#F1F5F9"           # Main background
+    c_sidebar = "#E2E8F0"      # Sidebar background
+    c_card = "#FFFFFF"         # Content cards
     c_card_inner = "#F8FAFC"   # Secondary inner card
     c_text_primary = "#172B4D" # Primary text (dark navy)
-    c_text_muted = "#53657D"   # Secondary text (readable slate grey)
-    c_accent = "#1769AA"       # Accent blue
-    c_accent_hover = "#135284" # Accent blue hover
-    c_success = "#16866A"      # Success green
+    c_text_muted = "#475569"   # Secondary text (readable slate grey)
+    c_accent = "#1769D2"       # Primary blue
+    c_accent_hover = "#1251A3" # Primary blue hover
+    c_subtle = "#DCEBFA"       # Subtle accent background
+    c_success = "#15803D"      # Success green
     c_warning = "#B45309"      # Warning amber
-    c_error = "#C62828"        # Error red
-    c_border = "#CBD5E1"       # Borders
-    c_grid = "#E2E8F0"         # Chart grid lines
+    c_error = "#B91C1C"        # Error red
+    c_border = "#CBD5E1"       # Card & element borders
+    c_grid = "#E2E8F0"         # Visible chart gridlines
+    wm_opacity = "0.048"       # Watermark opacity (Light Mode)
     plotly_template = "plotly_white"
     badge_bg = "#E6F4EA"
-    badge_border = "#34A853"
+    badge_border = "#15803D"
 
 # ---------------------------------------------------------
 # Dynamic High-Contrast CSS Injection
 # ---------------------------------------------------------
 custom_css = f"""
 <style>
-    /* Global Base */
+    /* 1. Eliminate Top Blank Space & Maximize Canvas */
+    .block-container {{
+        padding-top: 1rem !important;
+        padding-bottom: 2rem !important;
+        max-width: 96% !important;
+    }}
+    header[data-testid="stHeader"] {{
+        background: transparent !important;
+        height: 1.8rem !important;
+    }}
+
+    /* 2. Global Base Styles */
     .stApp {{
         background-color: {c_bg} !important;
         color: {c_text_primary} !important;
@@ -108,7 +144,102 @@ custom_css = f"""
         line-height: 1.5;
     }}
 
-    /* Sidebar Container */
+    /* 3. Full-Width Aerospace Hero Banner */
+    .hero-header-container {{
+        position: relative;
+        background: linear-gradient(135deg, #050D18 0%, #0A1B30 40%, #102B4C 100%);
+        border: 1px solid rgba(56, 189, 248, 0.35);
+        border-radius: 12px;
+        padding: 0;
+        margin-bottom: 16px;
+        box-shadow: 0 8px 24px rgba(5, 13, 24, 0.22);
+        overflow: hidden;
+        display: flex;
+        align-items: stretch;
+        min-height: 155px;
+        z-index: 1;
+    }}
+    .hero-header-content {{
+        padding: 22px 28px;
+        flex: 1.35;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        z-index: 2;
+    }}
+    .hero-header-visual {{
+        flex: 1;
+        min-width: 320px;
+        background-image: url('data:image/svg+xml;base64,{hero_svg_b64}');
+        background-repeat: no-repeat;
+        background-position: right center;
+        background-size: cover;
+        position: relative;
+    }}
+    .hero-status-pill {{
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background-color: rgba(6, 78, 59, 0.85);
+        color: #4ADE80;
+        border: 1px solid #16A34A;
+        padding: 3px 12px;
+        border-radius: 20px;
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+        width: fit-content;
+    }}
+    .hero-title {{
+        color: #FFFFFF !important;
+        font-size: 1.95rem !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.02em !important;
+        margin: 0 !important;
+        line-height: 1.15 !important;
+        text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    }}
+    .hero-subtitle {{
+        color: #BAE6FD !important;
+        font-size: 0.88rem !important;
+        font-weight: 600 !important;
+        margin-top: 5px !important;
+        margin-bottom: 2px !important;
+    }}
+    .hero-desc {{
+        color: #94A3B8 !important;
+        font-size: 0.80rem !important;
+        font-weight: 500 !important;
+        margin: 0 !important;
+    }}
+    @media (max-width: 768px) {{
+        .hero-header-container {{
+            flex-direction: column;
+        }}
+        .hero-header-visual {{
+            min-height: 120px;
+            background-size: contain;
+        }}
+    }}
+
+    /* 4. Subtle Background Spacecraft Watermark */
+    .satellite-watermark-overlay {{
+        position: fixed;
+        right: -30px;
+        top: 20%;
+        width: 520px;
+        height: 520px;
+        background-image: url('data:image/svg+xml;base64,{watermark_b64}');
+        background-repeat: no-repeat;
+        background-size: contain;
+        opacity: {wm_opacity};
+        pointer-events: none;
+        z-index: 0;
+    }}
+
+    /* 5. Sidebar Styling */
     [data-testid="stSidebar"] {{
         background-color: {c_sidebar} !important;
         border-right: 1px solid {c_border} !important;
@@ -128,7 +259,7 @@ custom_css = f"""
         font-weight: 500 !important;
     }}
 
-    /* Primary Launch Button */
+    /* 6. Primary Action Buttons */
     .stButton > button[kind="primary"] {{
         background-color: {c_accent} !important;
         color: #FFFFFF !important;
@@ -138,23 +269,23 @@ custom_css = f"""
         font-size: 0.95rem !important;
         letter-spacing: 0.03em !important;
         padding: 0.55rem 1rem !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.12) !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.15) !important;
         transition: all 0.15s ease-in-out !important;
     }}
     .stButton > button[kind="primary"]:hover {{
         background-color: {c_accent_hover} !important;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.25) !important;
         transform: translateY(-1px) !important;
     }}
 
-    /* Secondary Download Button */
+    /* Secondary Action / Download Buttons */
     .stDownloadButton > button {{
         background-color: {c_card} !important;
         color: {c_accent} !important;
         border: 1.5px solid {c_accent} !important;
         border-radius: 6px !important;
         font-weight: 700 !important;
-        font-size: 0.9rem !important;
+        font-size: 0.88rem !important;
         padding: 0.5rem 1rem !important;
         transition: all 0.15s ease-in-out !important;
     }}
@@ -163,18 +294,20 @@ custom_css = f"""
         color: #FFFFFF !important;
     }}
 
-    /* Mission Control Metric Cards */
+    /* 7. Professional Mission Control Metric Cards */
     .mission-card {{
         background-color: {c_card};
         border: 1px solid {c_border};
         border-radius: 8px;
-        padding: 18px 20px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        margin-bottom: 14px;
+        padding: 16px 18px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+        margin-bottom: 12px;
         height: 100%;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        position: relative;
+        z-index: 1;
     }}
     .mission-card-tag {{
         font-size: 0.72rem;
@@ -185,7 +318,7 @@ custom_css = f"""
         margin-bottom: 6px;
     }}
     .mission-card-value {{
-        font-size: 2.1rem;
+        font-size: 2rem;
         font-weight: 800;
         line-height: 1.1;
         letter-spacing: -0.02em;
@@ -197,24 +330,30 @@ custom_css = f"""
         color: {c_text_muted};
     }}
 
-    /* Status Banner */
+    /* 8. Mission Control Telemetry Strip */
     .status-banner {{
         background-color: {c_card};
         border: 1px solid {c_border};
         border-left: 4px solid {c_accent};
         border-radius: 6px;
         padding: 12px 18px;
-        margin-top: 10px;
-        margin-bottom: 22px;
+        margin-top: 8px;
+        margin-bottom: 20px;
         display: flex;
         align-items: center;
         justify-content: space-between;
         font-size: 0.9rem;
         color: {c_text_primary};
         box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        position: relative;
+        z-index: 1;
     }}
 
-    /* Tabs Component */
+    /* 9. Navigation Tabs */
+    .stTabs {{
+        position: relative;
+        z-index: 1;
+    }}
     .stTabs [data-baseweb="tab-list"] {{
         background-color: transparent !important;
         border-bottom: 2px solid {c_border} !important;
@@ -237,7 +376,7 @@ custom_css = f"""
         font-weight: 700 !important;
     }}
 
-    /* Reference & Info Cards */
+    /* 10. Standards & Reference Boxes */
     .info-box {{
         background-color: {c_card};
         border: 1px solid {c_border};
@@ -245,6 +384,8 @@ custom_css = f"""
         padding: 18px 22px;
         margin-bottom: 16px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        position: relative;
+        z-index: 1;
     }}
     .info-box h4 {{
         margin-top: 0;
@@ -258,6 +399,11 @@ custom_css = f"""
 </style>
 """
 st.markdown(custom_css, unsafe_allow_html=True)
+
+# ---------------------------------------------------------
+# Subtle Spacecraft Watermark (Positioned behind content)
+# ---------------------------------------------------------
+st.markdown('<div class="satellite-watermark-overlay"></div>', unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # Sidebar: Mission Configuration
@@ -299,8 +445,14 @@ payload_size = st.sidebar.slider(
     help="Bytes of synthetic sensor data generated per telemetry frame.",
 )
 
+st.sidebar.divider()
+st.sidebar.markdown(
+    f"<div style='font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: {c_accent}; margin-bottom: 8px;'>2. Error Detection Configuration</div>",
+    unsafe_allow_html=True,
+)
+
 crc_choice = st.sidebar.selectbox(
-    "Error Detection Polynomial",
+    "CRC Generator Polynomial",
     ["CRC-16-CCITT", "CRC-32"],
     index=0,
     help="CRC algorithm. CRC-16-CCITT (0x1021) is standard for CCSDS TM frames.",
@@ -308,7 +460,7 @@ crc_choice = st.sidebar.selectbox(
 
 st.sidebar.divider()
 st.sidebar.markdown(
-    f"<div style='font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: {c_accent}; margin-bottom: 8px;'>2. Channel Environment Physics</div>",
+    f"<div style='font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: {c_accent}; margin-bottom: 8px;'>3. Channel Environment Physics</div>",
     unsafe_allow_html=True,
 )
 
@@ -355,7 +507,7 @@ if channel_mode in ("burst", "hybrid"):
 
 st.sidebar.divider()
 st.sidebar.markdown(
-    f"<div style='font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: {c_accent}; margin-bottom: 8px;'>3. Deterministic Seeding</div>",
+    f"<div style='font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: {c_accent}; margin-bottom: 8px;'>4. Deterministic Seeding</div>",
     unsafe_allow_html=True,
 )
 
@@ -401,29 +553,24 @@ metrics = result.metrics
 df_records = result.to_dataframe()
 
 # ---------------------------------------------------------
-# Main View: Header & Status Banner
+# Full-Width Aerospace Hero Banner (Spacecraft + Earth Horizon)
 # ---------------------------------------------------------
 st.markdown(
     f"""
-    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid {c_border}; padding-bottom: 12px; margin-bottom: 16px;">
-        <div>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 2.2rem;">🛰️</span>
-                <div>
-                    <h1 style="margin: 0; font-size: 1.9rem; font-weight: 800; color: {c_text_primary}; letter-spacing: -0.02em;">
-                        SPACE TELEMETRY LINK SIMULATOR
-                    </h1>
-                    <div style="font-size: 0.9rem; font-weight: 600; color: {c_text_muted}; margin-top: 2px;">
-                        CCSDS 131.0-B-5 Standard Synchronized Telemetry Link • Ground Station Receiver & Error Detection Engine
-                    </div>
-                </div>
+    <div class="hero-header-container">
+        <div class="hero-header-content">
+            <div class="hero-status-pill">
+                <span style="font-size: 0.75rem; color: #4ADE80;">●</span> LINK STATUS: NOMINAL
             </div>
+            <h1 class="hero-title">SPACE TELEMETRY LINK SIMULATOR</h1>
+            <p class="hero-subtitle">
+                CCSDS 131.0-B-5 Standard Synchronized Telemetry Link
+            </p>
+            <p class="hero-desc">
+                Ground Station Receiver & Error Detection Engine
+            </p>
         </div>
-        <div style="text-align: right;">
-            <span style="background-color: {badge_bg}; color: {c_success}; border: 1.5px solid {badge_border}; padding: 6px 14px; border-radius: 20px; font-weight: 800; font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase;">
-                ● LINK STATUS: NOMINAL
-            </span>
-        </div>
+        <div class="hero-header-visual"></div>
     </div>
     """,
     unsafe_allow_html=True,
@@ -690,7 +837,7 @@ with tab_table:
         unsafe_allow_html=True,
     )
 
-    f_col1, f_col2, f_col3 = st.columns([1.5, 2, 1.5])
+    f_col1, f_col2, f_col3, f_col4 = st.columns([1.5, 2, 1.2, 1.2])
     with f_col1:
         status_filter = st.selectbox(
             "Filter Table by Receiver Verdict:",
@@ -715,10 +862,26 @@ with tab_table:
     with f_col3:
         csv_bytes = df_records.to_csv(index=False).encode("utf-8")
         st.download_button(
-            label="📥 Export Complete Trace (CSV)",
+            label="📥 Export Trace (CSV)",
             data=csv_bytes,
             file_name=f"space_telemetry_{result.config.crc_algorithm}_{metrics.total_frames}frames.csv",
             mime="text/csv",
+            width="stretch",
+        )
+
+    with f_col4:
+        # JSON summary & frame export
+        json_export_data = {
+            "mission_configuration": result.config.__dict__,
+            "summary_metrics": metrics.to_dict(),
+            "frame_audit_sample": df_records.head(50).to_dict(orient="records"),
+        }
+        json_bytes = json.dumps(json_export_data, indent=2).encode("utf-8")
+        st.download_button(
+            label="📥 Export Summary (JSON)",
+            data=json_bytes,
+            file_name=f"space_telemetry_{result.config.crc_algorithm}_summary.json",
+            mime="application/json",
             width="stretch",
         )
 
