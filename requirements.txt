@@ -1,0 +1,13 @@
+# Scientific & Numerical Computing
+numpy>=1.24.0
+scipy>=1.10.0
+pandas>=2.0.0
+
+# Visualization & Plotting
+matplotlib>=3.7.0
+
+# Interactive Dashboard / GUI
+streamlit>=1.28.0
+
+# Testing & Verification
+pytest>=7.3.0
